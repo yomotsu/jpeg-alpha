@@ -1,0 +1,23 @@
+{
+  "name": "jpeg-alpha",
+  "version": "0.0.0",
+  "author": "Yomotsu",
+  "license": "MIT",
+  "repository": "yomotsu/jpeg-alpha",
+  "jsnext:main": "dist/jpeg-alpha.module.js",
+  "module": "dist/jpeg-alpha.module.js",
+  "main": "dist/jpeg-alpha.js",
+  "types": "dist/index.d.ts",
+  "devDependencies": {
+    "rollup": "^2.58.0",
+    "rollup-plugin-typescript2": "^0.30.0",
+    "rollup-watch": "^4.3.1",
+    "terser": "^5.9.0",
+    "typescript": "^4.4.3"
+  },
+  "scripts": {
+    "dev": "rollup --config --watch",
+    "build": "rollup --config && terser 'dist/jpeg-alpha.js' -o 'dist/jpeg-alpha.min.js' --comments '/^!/'"
+  },
+  "keywords": []
+}

@@ -1,0 +1,8 @@
+node_modules
+package-lock.json
+.rpt2_cache
+.cache
+.DS_Store
+Thumbs.db
+.sass-cache
+npm-debug.log

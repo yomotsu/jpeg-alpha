@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>=^.^=</title>
+<style>
+body {background: url( "./img/bg.png" );}
+</style>
+</head>
+<body>
+<div><a href="https://github.com/yomotsu/jpeg-alpha">GitHub repo</a></div>
+
+<p>result</p>
+<canvas></canvas>
+<p>RGB Source</p>
+<img src="./img/color.jpg" alt="">
+<p>Mask Source</p>
+<img src="./img/alpha.jpg" alt="">
+
+<script src="../dist/jpeg-alpha.js"></script>
+<script>
+const jpegAlpha = new JpegAlpha( './img/color.jpg', './img/alpha.jpg', document.querySelector( 'canvas' ) );
+</script>
+<!-- https://publicdomainq.net/cat-animal-yawn-0003097/ -->
+
+</body>
+</html>

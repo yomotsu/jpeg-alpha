@@ -1,0 +1,2 @@
+export declare const VERTEX_SHADER_SOURCE = "\nattribute vec2 position;\nattribute vec2 uv;\nvarying vec2 vUv;\nvoid main() {\n\tgl_Position = vec4( position, 1., 1. );\n\tvUv = uv;\n}\n";
+export declare const FRAGMENT_SHADER_SOURCE = "\nprecision highp float;\nvarying vec2 vUv;\nuniform sampler2D rgbImage, alphaImage;\n\nvoid main(){\n\n\tvec4 color = texture2D( rgbImage, vUv );\n\tfloat alpha = texture2D( alphaImage, vUv ).r;\n\tgl_FragColor = vec4( color.rgb, color.a * alpha );\n\n}\n";
