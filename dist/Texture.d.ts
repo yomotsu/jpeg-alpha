@@ -1,9 +1,9 @@
 import { EventDispatcher } from './EventDispatcher';
 export declare class Texture extends EventDispatcher {
-    private _image;
     texture: WebGLTexture;
+    private _image;
     private _gl;
-    onload: () => void;
+    private _onload;
     constructor(gl: WebGLRenderingContext, src?: string);
     get isLoaded(): boolean;
     get imageSize(): [number, number];

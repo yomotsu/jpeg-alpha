@@ -1,10 +1,10 @@
 import { EventDispatcher } from './EventDispatcher';
 export declare class JpegAlpha extends EventDispatcher {
-    duration: number;
     private _canvas;
     private _rgbTexture;
     private _alphaTexture;
     private _destroyed;
+    private _internalCount;
     private _gl;
     private _vertexShader;
     private _fragmentShader;
@@ -16,5 +16,6 @@ export declare class JpegAlpha extends EventDispatcher {
     loadImages(rgbImageSource: string, alphaImageSource: string): Promise<void>;
     setSize(w: number, h: number): void;
     render(): void;
+    toDataUri(): string;
     destroy(removeElement?: boolean): void;
 }

@@ -139,13 +139,13 @@
 	        _this._gl.texParameteri(_this._gl.TEXTURE_2D, _this._gl.TEXTURE_MAG_FILTER, _this._gl.LINEAR);
 	        _this._gl.texParameteri(_this._gl.TEXTURE_2D, _this._gl.TEXTURE_WRAP_S, _this._gl.CLAMP_TO_EDGE);
 	        _this._gl.texParameteri(_this._gl.TEXTURE_2D, _this._gl.TEXTURE_WRAP_T, _this._gl.CLAMP_TO_EDGE);
-	        _this.onload = function () {
+	        _this._onload = function () {
 	            _this._gl.bindTexture(_this._gl.TEXTURE_2D, _this.texture);
 	            _this._gl.texImage2D(_this._gl.TEXTURE_2D, 0, _this._gl.RGBA, _this._gl.RGBA, _this._gl.UNSIGNED_BYTE, _this._image);
 	            _this._gl.bindTexture(_this._gl.TEXTURE_2D, null);
 	            _this.dispatchEvent({ type: 'updated' });
 	        };
-	        _this._image.addEventListener('load', _this.onload);
+	        _this._image.addEventListener('load', _this._onload);
 	        _this.load(src);
 	        return _this;
 	    }
@@ -166,18 +166,18 @@
 	    Texture.prototype.load = function (src) {
 	        this._image.src = src;
 	        if (this.isLoaded)
-	            this.onload();
+	            this._onload();
 	    };
 	    Texture.prototype.setImage = function (image) {
-	        this._image.removeEventListener('load', this.onload);
+	        this._image.removeEventListener('load', this._onload);
 	        this._image = image;
-	        this._image.addEventListener('load', this.onload);
+	        this._image.addEventListener('load', this._onload);
 	        if (this.isLoaded) {
-	            this.onload();
+	            this._onload();
 	        }
 	    };
 	    Texture.prototype.destroy = function () {
-	        this._image.removeEventListener('load', this.onload);
+	        this._image.removeEventListener('load', this._onload);
 	        this._gl.deleteTexture(this.texture);
 	    };
 	    return Texture;
@@ -195,22 +195,22 @@
 	    -1, 1,
 	]);
 	var UV = new Float32Array([
-	    0.0, 0.0,
-	    1.0, 0.0,
-	    0.0, 1.0,
-	    1.0, 0.0,
-	    1.0, 1.0,
-	    0.0, 1.0,
+	    0, 0,
+	    1, 0,
+	    0, 1,
+	    1, 0,
+	    1, 1,
+	    0, 1,
 	]);
 	var JpegAlpha = (function (_super) {
 	    __extends(JpegAlpha, _super);
 	    function JpegAlpha(rgbImageSource, alphaImageSource, canvas) {
 	        if (canvas === void 0) { canvas = document.createElement('canvas'); }
 	        var _this = _super.call(this) || this;
-	        _this.duration = 4000;
 	        _this._destroyed = false;
+	        _this._internalCount = 0;
 	        _this._canvas = canvas;
-	        _this._gl = getWebglContext(canvas);
+	        _this._gl = getWebglContext(canvas, { preserveDrawingBuffer: true });
 	        _this._vertexBuffer = _this._gl.createBuffer();
 	        _this._uvBuffer = _this._gl.createBuffer();
 	        _this._vertexShader = _this._gl.createShader(_this._gl.VERTEX_SHADER);
@@ -247,15 +247,20 @@
 	    }
 	    JpegAlpha.prototype.loadImages = function (rgbImageSource, alphaImageSource) {
 	        return __awaiter(this, void 0, void 0, function () {
-	            var _a, rgbImage, alphaImage;
+	            var loadId, _a, rgbImage, alphaImage;
 	            return __generator(this, function (_b) {
 	                switch (_b.label) {
-	                    case 0: return [4, Promise.all([
-	                            loadImage(rgbImageSource),
-	                            loadImage(alphaImageSource),
-	                        ])];
+	                    case 0:
+	                        this._internalCount++;
+	                        loadId = this._internalCount;
+	                        return [4, Promise.all([
+	                                loadImage(rgbImageSource),
+	                                loadImage(alphaImageSource),
+	                            ])];
 	                    case 1:
 	                        _a = _b.sent(), rgbImage = _a[0], alphaImage = _a[1];
+	                        if (loadId !== this._internalCount)
+	                            return [2];
 	                        this.setSize(rgbImage.naturalWidth, rgbImage.naturalHeight);
 	                        this._rgbTexture.setImage(rgbImage);
 	                        this._alphaTexture.setImage(alphaImage);
@@ -285,6 +290,9 @@
 	        this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
 	        this._gl.drawArrays(this._gl.TRIANGLES, 0, 6);
 	        this._gl.flush();
+	    };
+	    JpegAlpha.prototype.toDataUri = function () {
+	        return this._canvas.toDataURL();
 	    };
 	    JpegAlpha.prototype.destroy = function (removeElement) {
 	        if (removeElement === void 0) { removeElement = false; }
