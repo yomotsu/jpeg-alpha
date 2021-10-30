@@ -4,10 +4,10 @@ const WHITE_1PX = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC
 
 export class Texture extends EventDispatcher {
 
-	private _image = new Image();
 	texture: WebGLTexture;
+	private _image = new Image();
 	private _gl: WebGLRenderingContext;
-	onload: () => void;
+	private _onload: () => void;
 
 	constructor( gl: WebGLRenderingContext, src: string = WHITE_1PX ) {
 
@@ -34,7 +34,7 @@ export class Texture extends EventDispatcher {
 		this._gl.texParameteri( this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_S, this._gl.CLAMP_TO_EDGE );
 		this._gl.texParameteri( this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_T, this._gl.CLAMP_TO_EDGE );
 
-		this.onload = () => {
+		this._onload = () => {
 
 			this._gl.bindTexture( this._gl.TEXTURE_2D, this.texture );
 			this._gl.texImage2D( this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, this._image );
@@ -43,7 +43,7 @@ export class Texture extends EventDispatcher {
 			this.dispatchEvent( { type: 'updated' } );
 
 		}
-		this._image.addEventListener( 'load', this.onload );
+		this._image.addEventListener( 'load', this._onload );
 		this.load( src );
 
 	}
@@ -63,19 +63,19 @@ export class Texture extends EventDispatcher {
 	load( src: string ) {
 
 		this._image.src = src;
-		if ( this.isLoaded ) this.onload();
+		if ( this.isLoaded ) this._onload();
 
 	}
 
 	setImage( image: HTMLImageElement ) {
 
-		this._image.removeEventListener( 'load', this.onload );
+		this._image.removeEventListener( 'load', this._onload );
 		this._image = image;
-		this._image.addEventListener( 'load', this.onload );
+		this._image.addEventListener( 'load', this._onload );
 
 		if ( this.isLoaded ) {
 
-			this.onload();
+			this._onload();
 
 		}
 
@@ -83,7 +83,7 @@ export class Texture extends EventDispatcher {
 
 	destroy(): void {
 
-		this._image.removeEventListener( 'load', this.onload );
+		this._image.removeEventListener( 'load', this._onload );
 		this._gl.deleteTexture( this.texture );
 
 	}

@@ -6,33 +6,31 @@ import {
 	FRAGMENT_SHADER_SOURCE,
 } from './shader';
 
-
 const VERTEXES = new Float32Array( [
 	- 1, - 1,
-		1, - 1,
+	  1, - 1,
 	- 1,   1,
-		1, - 1,
-		1,   1,
+	  1, - 1,
+	  1,   1,
 	- 1,   1,
 ] );
 
 const UV = new Float32Array( [
-	0.0, 0.0,
-	1.0, 0.0,
-	0.0, 1.0,
-	1.0, 0.0,
-	1.0, 1.0,
-	0.0, 1.0,
+	0, 0,
+	1, 0,
+	0, 1,
+	1, 0,
+	1, 1,
+	0, 1,
 ] );
 
 export class JpegAlpha extends EventDispatcher {
-
-	duration: number = 4000;
 
 	private _canvas: HTMLCanvasElement;
 	private _rgbTexture: Texture;
 	private _alphaTexture: Texture;
 	private _destroyed: boolean = false;
+	private _internalCount: number = 0;
 
 	private _gl: WebGLRenderingContext;
 	private _vertexShader: WebGLShader;
@@ -55,7 +53,7 @@ export class JpegAlpha extends EventDispatcher {
 
 		this._canvas = canvas;
 
-		this._gl = getWebglContext( canvas );
+		this._gl = getWebglContext( canvas, { preserveDrawingBuffer: true } );
 		this._vertexBuffer = this._gl.createBuffer()!;
 		this._uvBuffer = this._gl.createBuffer()!;
 
@@ -114,12 +112,18 @@ export class JpegAlpha extends EventDispatcher {
 	async loadImages(
 		rgbImageSource: string,
 		alphaImageSource: string,
-	) {
+	): Promise<void> {
+
+		this._internalCount ++;
+		const loadId = this._internalCount;
 
 		const [ rgbImage, alphaImage ] = await Promise.all( [
 			loadImage( rgbImageSource ),
 			loadImage( alphaImageSource ),
 		] );
+
+		// another load has been fired. abort this load.
+		if ( loadId !== this._internalCount ) return;
 
 		this.setSize( rgbImage.naturalWidth, rgbImage.naturalHeight );
 		this._rgbTexture.setImage( rgbImage );
@@ -137,7 +141,7 @@ export class JpegAlpha extends EventDispatcher {
 
 	}
 
-	setSize( w: number, h: number ) {
+	setSize( w: number, h: number ): void {
 
 		if ( this._canvas.width  === w && this._canvas.height === h ) return;
 
@@ -147,7 +151,7 @@ export class JpegAlpha extends EventDispatcher {
 
 	}
 
-	render() {
+	render(): void {
 
 		if ( this._destroyed ) return;
 
@@ -158,7 +162,13 @@ export class JpegAlpha extends EventDispatcher {
 
 	}
 
-	destroy( removeElement = false ) {
+	toDataUri(): string {
+
+		return this._canvas.toDataURL();
+
+	}
+
+	destroy( removeElement = false ): void {
 
 		this._destroyed   = true;
 
@@ -195,7 +205,7 @@ export class JpegAlpha extends EventDispatcher {
 
 function loadImage( src: string ): Promise<HTMLImageElement> {
 
-  return new Promise( ( resolve ) => {
+	return new Promise( ( resolve ) => {
 
 		const image = new Image();
 		const onload = () => {
@@ -208,7 +218,7 @@ function loadImage( src: string ): Promise<HTMLImageElement> {
 		image.addEventListener( 'load', onload );
 		image.src = src;
 
-  } );
+	} );
 
 }
 
